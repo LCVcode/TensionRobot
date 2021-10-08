@@ -26,4 +26,8 @@ class RenderWindow:
     def draw_all(self) -> None:
         self._DISPLAY.fill((0, 0, 0))
         pg.draw.circle(self._DISPLAY, (120, 30, 0), (0, 0), 50)
+        self.draw_line_to_mouse()
         pg.display.flip()
+
+    def draw_line_to_mouse(self) -> None:
+        pg.draw.line(self._DISPLAY, (0, 210, 160), (0, 0), pg.mouse.get_pos())
