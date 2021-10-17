@@ -1,8 +1,10 @@
 from __future__ import annotations
 from abc import ABC, abstractmethod
-from dataclasses import dataclass
+from dataclasses import FrozenInstanceError, dataclass
 from math import sqrt
 import pygame as pg
+
+G = 9.8
 
 
 @dataclass
@@ -38,19 +40,27 @@ class Vector2D:
 
 class RoundMass:
 
+    _MU_STATIC: float = 0.006
+    _MU_SLIDING: float = 0.005
+
     pos: Vector2D
     vel: Vector2D
     acc: Vector2D
+    net_force: Vector2D
+    mass: float
 
-    def __init__(self):
+    def __init__(self, mass: float = 1):
         self.pos = Vector2D(0, 0)
         self.vel = Vector2D(0, 0)
         self.acc = Vector2D(0, 0)
+        self.net_force = Vector2D(0, 0)
+        self.mass = mass
 
     def tick(self) -> None:
+        self.acc = self.net_force / self.mass
         self.vel += self.acc
         self.pos += self.vel
-        self.acc.reset()
+        self.net_force.reset()
 
     def approach_target(self, target: Vector2D) -> None:
         dx = target.x - self.pos.x
@@ -58,13 +68,32 @@ class RoundMass:
         self.acc = Vector2D(dx / 360, dy / 360)
 
     def apply_force(self, force: Vector2D) -> None:
-        self.acc += force
+        self.net_force += force
+        # self.acc += force / self.mass
 
     def apply_friction(self) -> None:
-        mu = 1
-        if self.vel.length < mu:
-            self.vel.x, self.vel.y = 0, 0
+        if not self.vel.length:
+            self._apply_static_friction()
         else:
-            scale = (self.vel.length - mu) / self.vel.length
-            self.vel.x *= scale
-            self.vel.y *= scale
+            self._apply_sliding_friction()
+
+    def _apply_static_friction(self) -> None:
+        magnitude: float = G * self.mass * self._MU_STATIC
+        length = self.net_force.length
+
+        if length < magnitude:
+            # Static friction overcomes net_force
+            self.net_force.reset()
+        else:
+            # Net_force overcomes static friction
+            self.net_force *= (length - magnitude) / length
+
+    def _apply_sliding_friction(self) -> None:
+        magnitude: float = G * self.mass * self._MU_SLIDING
+
+        friction = self.vel * (-magnitude / self.vel.length)
+        if friction.length > self.vel.length * self.mass:
+            self.vel.reset()
+            self.net_force.reset()
+            return
+        self.apply_force(friction)
