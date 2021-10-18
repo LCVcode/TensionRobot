@@ -10,4 +10,4 @@ if __name__ == "__main__":
     sim.add_robots(10)
     sim.set_robot_target(Vector2D(600, 300))
 
-    win.main_loop(1 / 60)
+    win.main_loop(fps=60, frame_limit=120)

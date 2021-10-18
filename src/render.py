@@ -30,8 +30,10 @@ class RenderWindow:
             TensionRobot: self._draw_robot,
         }
 
-    def main_loop(self, time_step: float = 0):
+    def main_loop(self, fps: int = 30, frame_limit: int = 0):
         running: bool = True
+        frame_counter: int = 0
+        time_step = 1 / fps
 
         while running:
             t_start: float = time.time()
@@ -40,6 +42,9 @@ class RenderWindow:
                     running = False
             self._SIM.tick()
             self.draw_all()
+            frame_counter += 1
+            if frame_limit and frame_limit < frame_counter:
+                running = False
             while time.time() - t_start < time_step:
                 pass
 
