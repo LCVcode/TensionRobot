@@ -30,6 +30,10 @@ class Vector2D:
     def __rmul__(self, scalar: float) -> Vector2D:
         return self * scalar
 
+    def normalize(self) -> Vector2D:
+        length = self.length
+        return Vector2D(self.x / length, self.y / length)
+
     @property
     def length(self) -> float:
         return sqrt(self.x ** 2 + self.y ** 2)
