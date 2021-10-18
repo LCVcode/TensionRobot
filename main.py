@@ -8,6 +8,6 @@ if __name__ == "__main__":
     sim = Simulation(width=680, height=480)
     win: RenderWindow = RenderWindow(sim)
 
-    sim.robot.set_target(Vector2D(250, 75))
+    sim.add_robots(10)
 
     win.main_loop(1 / 60)

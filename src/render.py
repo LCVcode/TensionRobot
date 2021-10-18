@@ -7,6 +7,10 @@ from src.sim import Simulation
 from src.robot import TensionRobot
 
 
+# TODO:
+# 1. Cleanup renderer draw methods (consolidate)
+
+
 class RenderWindow:
 
     HEIGHT: int
@@ -42,7 +46,7 @@ class RenderWindow:
     def draw_all(self) -> None:
         self._DISPLAY.fill((0, 0, 0))
         self.draw_entites()
-        self.draw_robot()
+        self.draw_robots()
         # self.draw_line_to_mouse()
         pg.display.flip()
 
@@ -53,8 +57,9 @@ class RenderWindow:
         for entity in self._SIM.entities:
             self._draw_entity(entity)
 
-    def draw_robot(self) -> None:
-        self._draw_entity(self._SIM.robot)
+    def draw_robots(self) -> None:
+        for robot in self._SIM.robots:
+            self._draw_entity(robot)
 
     def _draw_entity(self, entity: Union[RoundMass, TensionRobot]) -> None:
         if type(entity) in self._MAP:

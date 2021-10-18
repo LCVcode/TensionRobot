@@ -9,24 +9,29 @@ class Simulation:
     HEIGHT: int
     WIDTH: int
     entities: set[RoundMass]
-    robot: TensionRobot
+    robots: set[TensionRobot]
 
     def __init__(self, height: int, width: int):
         self.HEIGHT = height
         self.WIDTH = width
         self.entities = set()
-        self.robot = TensionRobot(width=width, height=height, power=10)
+        self.robots = set()
 
     def add_mass(self, mass: RoundMass) -> None:
         self.entities.add(mass)
 
-    def tick(self) -> None:
-        mouse_vec = Vector2D(*pg.mouse.get_pos())
-        for entity in self.entities:
-            entity.apply_force((mouse_vec - entity.pos) / 60)
-            entity.apply_friction()
+    def add_robot(self, robot: TensionRobot) -> None:
+        self.robots.add(robot)
 
+    def tick(self) -> None:
         for entity in self.entities:
             entity.tick()
 
-        self.robot.tick()
+        for robot in self.robots:
+            robot.tick()
+
+    def add_robots(self, count: int, power: float = 10):
+        for _ in range(count):
+            self.add_robot(
+                TensionRobot(width=self.WIDTH, height=self.HEIGHT, power=power)
+            )
