@@ -29,4 +29,4 @@ class Simulation:
         for entity in self.entities:
             entity.tick()
 
-        self.robot.tick((1, 1, 0.1, 0.9))
+        self.robot.tick(Vector2D(10, 5))
