@@ -11,14 +11,22 @@ class TensionRobot:
     WID: int
     POWER: float
     agent: Agent
+    crashed: bool
+    target: Vector2D
 
     def __init__(
-        self, width: int, height: int, power: float = 10, agent: Agent = None
+        self,
+        width: int,
+        height: int,
+        power: float = 10,
+        agent: Agent = None,
+        target: Vector2D = None,
     ):
         self.HEI, self.WID = height, width
         self.POWER = power
         self.effector = RoundMass(mass=3)
         self.agent = agent or Agent()
+        self.target = target or Vector2D(0, 0)
         self.reset()
 
     def reset(self) -> None:
@@ -28,20 +36,32 @@ class TensionRobot:
         self.effector.vel.reset()
         self.effector.acc.reset()
         self.effector.net_force.reset()
+        self.crashed = False
 
     # def tick(self, inputs: tuple[float, float, float, float]) -> None:
-    def tick(self, target: Vector2D) -> None:
+    def tick(self) -> None:
+        if self.crashed:
+            return
+
         anchors = self.get_anchors()
         tension_vectors = tuple(
             (vec - self.effector.pos).normalize() for vec in anchors
         )
-        inputs = self.agent.get_inputs(target, self.effector)
+        inputs = self.agent.get_inputs(self.target, self.effector)
         forces = (
             strength * unit for strength, unit in zip(inputs, tension_vectors)
         )
         for force in forces:
             self.effector.apply_force(force)
+
         self.effector.tick()
+        self._check_crashed()
+
+    def _check_crashed(self) -> None:
+        if not (0 < self.effector.pos.x < self.WID):
+            self.crashed = True
+        if not (0 < self.effector.pos.y < self.HEI):
+            self.crashed = True
 
     def get_anchors(self) -> tuple[Vector2D, Vector2D, Vector2D, Vector2D]:
         return (
@@ -50,6 +70,9 @@ class TensionRobot:
             Vector2D(0, self.HEI),
             Vector2D(self.WID, self.HEI),
         )
+
+    def set_target(self, target: Vector2D) -> None:
+        self.target = target
 
 
 class Agent:

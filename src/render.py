@@ -2,7 +2,7 @@ import pygame as pg
 import time
 from typing import Callable, Union
 
-from src.physics import RoundMass
+from src.physics import RoundMass, Vector2D
 from src.sim import Simulation
 from src.robot import TensionRobot
 
@@ -63,8 +63,12 @@ class RenderWindow:
             raise TypeError(f"Cannot render {type(entity)}.")
 
     def _draw_round_mass(self, mass: RoundMass) -> None:
-        color = (210, 210, 210)
-        pg.draw.circle(self._DISPLAY, color, (mass.pos.x, mass.pos.y), 5)
+        self._draw_point(mass.pos, color=(210, 210, 210))
+
+    def _draw_point(
+        self, point: Vector2D, color: tuple[int, int, int] = (210, 210, 210)
+    ) -> None:
+        pg.draw.circle(self._DISPLAY, color, (point.x, point.y), 5)
 
     def _draw_robot(self, robot: TensionRobot) -> None:
         for anchor in robot.get_anchors():
@@ -75,3 +79,4 @@ class RenderWindow:
                 robot.effector.pos.to_tuple(),
             )
         self._draw_round_mass(robot.effector)
+        self._draw_point(robot.target, color=(10, 210, 233))
