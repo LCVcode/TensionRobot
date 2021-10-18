@@ -1,4 +1,6 @@
 from src.physics import RoundMass, Vector2D
+from src.robot import TensionRobot
+
 import pygame as pg
 
 
@@ -7,11 +9,13 @@ class Simulation:
     HEIGHT: int
     WIDTH: int
     entities: set[RoundMass]
+    robot: TensionRobot
 
     def __init__(self, height: int, width: int):
         self.HEIGHT = height
         self.WIDTH = width
         self.entities = set()
+        self.robot = TensionRobot(width=width, height=height, power=10)
 
     def add_mass(self, mass: RoundMass) -> None:
         self.entities.add(mass)
@@ -24,3 +28,5 @@ class Simulation:
 
         for entity in self.entities:
             entity.tick()
+
+        self.robot.tick((1, 1, 0.1, 0.9))

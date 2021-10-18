@@ -34,6 +34,9 @@ class Vector2D:
         length = self.length
         return Vector2D(self.x / length, self.y / length)
 
+    def to_tuple(self) -> tuple[float, float]:
+        return self.x, self.y
+
     @property
     def length(self) -> float:
         return sqrt(self.x ** 2 + self.y ** 2)

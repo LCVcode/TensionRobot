@@ -1,9 +1,10 @@
 import pygame as pg
 import time
-from typing import Callable
+from typing import Callable, Union
 
 from src.physics import RoundMass
 from src.sim import Simulation
+from src.robot import TensionRobot
 
 
 class RenderWindow:
@@ -20,7 +21,10 @@ class RenderWindow:
         self._MAP = self.__draw_call_mapping()
 
     def __draw_call_mapping(self) -> dict[type, Callable]:
-        return {RoundMass: self._draw_round_mass}
+        return {
+            RoundMass: self._draw_round_mass,
+            TensionRobot: self._draw_robot,
+        }
 
     def main_loop(self, time_step: float = 0):
         running: bool = True
@@ -37,9 +41,9 @@ class RenderWindow:
 
     def draw_all(self) -> None:
         self._DISPLAY.fill((0, 0, 0))
-        pg.draw.circle(self._DISPLAY, (120, 30, 0), (0, 0), 50)
         self.draw_entites()
-        self.draw_line_to_mouse()
+        self.draw_robot()
+        # self.draw_line_to_mouse()
         pg.display.flip()
 
     def draw_line_to_mouse(self) -> None:
@@ -47,11 +51,27 @@ class RenderWindow:
 
     def draw_entites(self) -> None:
         for entity in self._SIM.entities:
-            if type(entity) in self._MAP:
-                self._MAP[type(entity)](entity)
-            else:
-                raise TypeError(f"Cannot render {type(entity)}.")
+            self._draw_entity(entity)
+
+    def draw_robot(self) -> None:
+        self._draw_entity(self._SIM.robot)
+
+    def _draw_entity(self, entity: Union[RoundMass, TensionRobot]) -> None:
+        if type(entity) in self._MAP:
+            self._MAP[type(entity)](entity)
+        else:
+            raise TypeError(f"Cannot render {type(entity)}.")
 
     def _draw_round_mass(self, mass: RoundMass) -> None:
         color = (210, 210, 210)
         pg.draw.circle(self._DISPLAY, color, (mass.pos.x, mass.pos.y), 5)
+
+    def _draw_robot(self, robot: TensionRobot) -> None:
+        for anchor in robot.get_anchors():
+            pg.draw.line(
+                self._DISPLAY,
+                (50, 50, 50),
+                anchor.to_tuple(),
+                robot.effector.pos.to_tuple(),
+            )
+        self._draw_round_mass(robot.effector)
