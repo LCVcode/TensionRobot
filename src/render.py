@@ -47,7 +47,6 @@ class RenderWindow:
         self._DISPLAY.fill((0, 0, 0))
         self.draw_entites()
         self.draw_robots()
-        # self.draw_line_to_mouse()
         pg.display.flip()
 
     def draw_line_to_mouse(self) -> None:

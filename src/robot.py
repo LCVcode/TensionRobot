@@ -38,7 +38,6 @@ class TensionRobot:
         self.effector.net_force.reset()
         self.crashed = False
 
-    # def tick(self, inputs: tuple[float, float, float, float]) -> None:
     def tick(self) -> None:
         if self.crashed:
             return

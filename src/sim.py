@@ -1,8 +1,6 @@
 from src.physics import RoundMass, Vector2D
 from src.robot import TensionRobot
 
-import pygame as pg
-
 
 class Simulation:
 
@@ -35,3 +33,7 @@ class Simulation:
             self.add_robot(
                 TensionRobot(width=self.WIDTH, height=self.HEIGHT, power=power)
             )
+
+    def set_robot_target(self, target: Vector2D) -> None:
+        for robot in self.robots:
+            robot.set_target(target)
