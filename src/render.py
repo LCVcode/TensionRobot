@@ -1,3 +1,4 @@
+from __future__ import annotations
 import pygame as pg
 import time
 from typing import Callable, Union

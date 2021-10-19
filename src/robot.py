@@ -13,6 +13,7 @@ class TensionRobot:
     agent: Agent
     crashed: bool
     target: Vector2D
+    score: float
 
     def __init__(
         self,
@@ -37,6 +38,11 @@ class TensionRobot:
         self.effector.acc.reset()
         self.effector.net_force.reset()
         self.crashed = False
+        self.score = 0
+
+    @property
+    def scored(self) -> bool:
+        return self.score == 0
 
     def tick(self) -> None:
         if self.crashed:
@@ -77,8 +83,10 @@ class TensionRobot:
 class Agent:
     brain: npt.NDArray[np.float64]
 
-    def __init__(self) -> None:
-        self.brain = np.random.random((6, 4)) * 2 - 1
+    def __init__(self, brain: npt.NDArray[np.float64] = None) -> None:
+        self.brain = (
+            brain if brain is not None else np.random.random((6, 4)) * 2 - 1
+        )
 
     def get_inputs(
         self, target: Vector2D, effector: RoundMass
