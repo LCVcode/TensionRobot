@@ -52,7 +52,9 @@ class TensionRobot:
         tension_vectors = tuple(
             (vec - self.effector.pos).normalize() for vec in anchors
         )
-        inputs = self.agent.get_inputs(self.target, self.effector)
+        inputs = self.agent.get_inputs(
+            self.target, self.effector, width=self.WID, height=self.HEI
+        )
         forces = (
             strength * unit for strength, unit in zip(inputs, tension_vectors)
         )
@@ -89,19 +91,22 @@ class Agent:
         )
 
     def get_inputs(
-        self, target: Vector2D, effector: RoundMass
+        self, target: Vector2D, effector: RoundMass, width: int, height: int
     ) -> tuple[float, ...]:
         offset = target - effector.pos
 
         input_vector = np.zeros((1, 6))
-        input_vector[0][0] = offset.x
-        input_vector[0][1] = offset.y
-        input_vector[0][2] = effector.pos.x
-        input_vector[0][3] = effector.pos.y
-        input_vector[0][4] = effector.vel.x
-        input_vector[0][5] = effector.vel.y
+        input_vector[0][0] = offset.x / width
+        input_vector[0][1] = offset.y / height
+        input_vector[0][2] = effector.pos.x / width
+        input_vector[0][3] = effector.pos.y / height
+        input_vector[0][4] = effector.vel.x / width
+        input_vector[0][5] = effector.vel.y / height
 
         output_vector = input_vector.dot(self.brain)
+        # print(input_vector)
+        # print(self.brain)
+        # print(output_vector)
 
         return tuple(Agent.sigmoid(x) for x in output_vector[0])
 

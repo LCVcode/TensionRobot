@@ -19,7 +19,7 @@ class RobotEvolver:
     def __init__(self, width: int, height: int) -> None:
         self.sim = Simulation(height=height, width=width)
         self.win = RenderWindow(self.sim)
-        self.breeder = GreedyAlphaReproducer(0.01)
+        self.breeder = GreedyAlphaReproducer(0.02)
         self.generation_count = 0
 
     def run_epoch(self, max_steps: int, fps: int) -> None:
