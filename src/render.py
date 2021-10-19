@@ -34,7 +34,7 @@ class RenderWindow:
     def main_loop(self, fps: int = 30, frame_limit: int = 0):
         running: bool = True
         frame_counter: int = 0
-        time_step = 1 / fps
+        time_step = 1 / fps if fps != 0 else 0
 
         while running:
             t_start: float = time.time()

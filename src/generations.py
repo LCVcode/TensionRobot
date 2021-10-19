@@ -2,6 +2,7 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 import numpy as np
+from pygame.constants import RESIZABLE
 
 
 from src.render import RenderWindow
@@ -15,18 +16,21 @@ class RobotEvolver:
     win: RenderWindow
     breeder: Reproducer
     generation_count: int
+    score_log: list[tuple[float, ...]]
 
     def __init__(self, width: int, height: int) -> None:
         self.sim = Simulation(height=height, width=width)
         self.win = RenderWindow(self.sim)
         self.breeder = GreedyAlphaReproducer(0.02)
         self.generation_count = 0
+        self.score_log = []
 
     def run_epoch(self, max_steps: int, fps: int) -> None:
         """Runs a single epoch.
         Does not modify any data."""
         self.sim.reset()
         self.win.main_loop(fps=fps, frame_limit=max_steps)
+        self.score_log.append(tuple(sorted(r.score for r in self.sim.robots)))
 
     def run_generation(self, max_steps: int, fps: int = 60) -> None:
         """Runs an epoch and produces the next generation."""
@@ -40,6 +44,21 @@ class RobotEvolver:
         for agent, robot in zip(new_agents, self.sim.robots):
             robot.agent = agent
         self.generation_count += 1
+
+    def _rounds_without_improvements(self) -> int:
+        rel_scores = self.relative_scores()
+        if not len(rel_scores):
+            return 0
+        i = len(rel_scores) - 1
+        while rel_scores[i] == 0:
+            i -= 1
+        return len(rel_scores) - i - 1
+
+    def relative_scores(self) -> tuple[float, ...]:
+        rel_scores: list[float] = [0 for _ in range(len(self.score_log) - 1)]
+        for i in range(len(rel_scores)):
+            rel_scores[i] = min(self.score_log[i]) - min(self.score_log[i + 1])
+        return tuple(rel_scores)
 
 
 class Reproducer(ABC):
